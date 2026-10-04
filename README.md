@@ -4,7 +4,48 @@
 
 **Paper Title Optimizer** is an [agent skill](https://github.com/anthropics/skills) (`SKILL.md` + scripts + data) for [Claude Code](https://claude.com/claude-code), Codex, and ZCode that rewrites **academic paper titles and abstracts** for the age of AI search. Think SEO, but for papers — the literature calls it **Generative Engine Optimization (GEO)** (KDD 2024). 论文标题/摘要的 AI 检索优化。
 
-![License](https://img.shields.io/badge/license-MIT-blue)
+![License](https://img.shields.io/badge/license-MIT-blue) ![Node](https://img.shields.io/badge/node-18%2B-green) ![Platforms](https://img.shields.io/badge/works%20with-Claude%20Code%20%7C%20Codex%20%7C%20ZCode-purple)
+
+## One-step install — paste this to your agent
+
+No terminal knowledge needed. Copy the block below, paste it into **Claude Code / Codex / ZCode** (or any agent that loads `SKILL.md` skills), press enter, done.
+
+```text
+Install the "paper-title-optimizer" agent skill from
+https://github.com/Hoemr/paper-title-optimizer for me:
+
+1. Fetch it: git clone --depth 1 https://github.com/Hoemr/paper-title-optimizer /tmp/paper-title-optimizer
+   (if git is unavailable, download https://github.com/Hoemr/paper-title-optimizer/archive/refs/heads/main.tar.gz and extract it instead).
+2. Copy SKILL.md, references/ and scripts/ from the downloaded folder into the skills
+   directory you actually read: ~/.claude/skills/ (Claude Code), ~/.codex/skills/ (Codex),
+   ~/.zcode/skills/ (ZCode), or ~/.cc-switch/skills/ if my skills are managed by cc-switch.
+   Pick the one that matches your platform; if you can't tell, use ~/.claude/skills/.
+3. Verify the scripts run: node <installed path>/scripts/title-stats.mjs --help
+   (requires Node 18+; if Node is missing, still finish the install and tell me —
+   the skill works without the scripts, they are only for data probes).
+4. Report: where you installed it, and give me one example sentence that triggers it.
+Do not ask me follow-up questions; just do it and report.
+```
+
+中文版（二选一即可）：
+
+```text
+帮我安装 agent skill "paper-title-optimizer"，来源：
+https://github.com/Hoemr/paper-title-optimizer
+
+1. 获取：git clone --depth 1 https://github.com/Hoemr/paper-title-optimizer /tmp/paper-title-optimizer
+   （没有 git 就下载并解压 https://github.com/Hoemr/paper-title-optimizer/archive/refs/heads/main.tar.gz ）
+2. 把其中的 SKILL.md、references/、scripts/ 复制到你实际读取的 skills 目录：
+   ~/.claude/skills/（Claude Code）、~/.codex/skills/（Codex）、~/.zcode/skills/（ZCode）；
+   如果我的 skills 由 cc-switch 管理（~/.cc-switch/skills/），装那里。
+   分不清就用 ~/.claude/skills/。
+3. 验证：node <安装路径>/scripts/title-stats.mjs --help 能正常运行
+   （需要 Node 18+；没有 Node 也要完成安装并告诉我——脚本只是数据探针，不影响 skill 主体）。
+4. 最后告诉我装到了哪里，并给我一句能触发它的话。
+不要向我提问，直接做完汇报。
+```
+
+Prefer manual? See [Install manually](#install-manually).
 
 ## Why
 
@@ -16,7 +57,14 @@ Reviewers are no longer the only readers of your title and abstract. When a rese
 
 ## What the skill does
 
-Six stages, five non-negotiable constraints, three layers:
+```mermaid
+flowchart LR
+    A["Stage 0<br/>visibility baseline"] --> B["Stage 1<br/>claim-evidence map<br/>+ name-collision check"]
+    B --> C["Stage 2<br/>title & abstract rewrite"]
+    C --> D["Stage 3<br/>cross-vocabulary coverage"]
+    D --> E["Stage 4<br/>term gate"]
+    E --> F["Stage 5–6<br/>body pointers + delivery"]
+```
 
 1. **Stage 0 — Visibility baseline.** Before touching anything, probe whether 8–12 queries can actually retrieve your paper (arXiv backend built in; ChatGPT/Perplexity optional via API keys). No baseline, no way to tell better from worse later.
 2. **Stage 1 — Claim→evidence map.** Every number in a rewrite must point to a table/section in the manuscript; missing ones are marked `[待补]`, never guessed. Includes **method-name collision checks** against the arXiv corpus (a colliding acronym makes AI confuse your results with someone else's).
@@ -24,6 +72,17 @@ Six stages, five non-negotiable constraints, three layers:
 4. **Stage 3 — Cross-community coverage (L2).** 8–12 queries written by *outsiders who don't know your jargon*, matched against the abstract in a hit/partial/miss matrix; capped at three vocabulary spaces so reviewers still know which community you belong to.
 5. **Stage 4 — Term gate (L3).** Trending terms must pass four gates (real relationship, rising phase, not peaked, annualized data) before entering your abstract; rejected terms are reported with reasons, never silently dropped.
 6. **Stage 5+6 — Body pointers & delivery.** Location-level suggestions for the manuscript body (never full rewrites), then a 9-item output contract.
+
+### Example
+
+```text
+Before  Towards Robust Retrieval-Augmented Generation: A Comprehensive Study
+        of Adaptive Decomposition Techniques
+After   Adaptive Query Decomposition for Multi-Hop RAG: +23 Accuracy Points
+        Across 6 Benchmarks and 3 LLM Families
+```
+
+Method name, task name, magnitude, and evaluation breadth are all in one paste-able sentence. (This is the "conclusion-first" template — one of four. Whether a title should carry a number at all is decided by the evidence rules below, not by default.)
 
 ## Evidence-based, with receipts
 
@@ -36,7 +95,7 @@ Most "optimization" advice is folklore. This skill ships its own data: `scripts/
 
 Every conclusion is reproducible: `node scripts/title-stats.mjs <venue-year>.json` on any year's data.
 
-## Install
+## Install manually
 
 ```bash
 # Claude Code
@@ -44,6 +103,9 @@ mkdir -p ~/.claude/skills && cp -r paper-title-optimizer ~/.claude/skills/
 
 # Codex
 mkdir -p ~/.codex/skills && cp -r paper-title-optimizer ~/.codex/skills/
+
+# ZCode
+mkdir -p ~/.zcode/skills && cp -r paper-title-optimizer ~/.zcode/skills/
 
 # cc-switch
 cp -r paper-title-optimizer ~/.cc-switch/skills/
@@ -61,6 +123,20 @@ Just ask in natural language; the skill triggers on:
 - "abstract rewrite" / "paper title optimization" / "make my paper findable in AI search"
 - "GEO for papers" / "arXiv abstract SEO" / "how do I get my paper cited by AI"
 - "check if my method name is taken"
+
+## FAQ
+
+**Will this make ChatGPT cite my paper?**
+No one can promise that. It raises the *probability* of being retrieved and quoted; real effects take 3–9 months to observe. The skill refuses to inflate claims or stuff keywords (the one tactic measured to hurt), and says "this paper needs another experiment" when evidence is short.
+
+**Can I use it for my thesis / a journal paper / a non-English paper?**
+Yes. Venue rules set abstract length and anonymization requirements (the skill asks for your venue). The term pool and title statistics are English/CS-top-conference data — treat them as reference, not law, outside that scope.
+
+**How is this different from just asking ChatGPT to "improve my title"?**
+A chat answer optimizes for reading flow. This skill optimizes for the *retrieval pipeline*: baseline before/after measurement, evidence mapping so no number is invented, cross-vocabulary coverage so neighboring communities can find you, name-collision checks, and conference-data-backed rules.
+
+**Does my paper leave my machine?**
+The skill and scripts run locally. Network calls: arXiv's public API (trend probes, collision checks) and — only if you set the keys yourself — OpenAI/Perplexity APIs for visibility probes. Nothing else is uploaded.
 
 ## Repository layout
 
@@ -90,7 +166,7 @@ This skill improves the *probability* of being retrieved and quoted; it does not
 
 ## 中文说明
 
-一个给 Claude Code / Codex / ZCode 用的论文标题与摘要优化 skill：把已完成的论文改写成在 AI 检索管道（ChatGPT、Perplexity、Google AI Overviews）和文献索引（arXiv、Semantic Scholar）里容易被召回、被整句引用的版本。内置六阶段流程（可见度基线 → 证据映射 → 标题摘要改写 → 跨词汇覆盖 → 术语闸门 → 交付）和五条硬约束（不编数字、不抬 claim、不挂无关热词、正文只给定位建议、没测到就说没测到）。规则不是拍脑袋：分析了五大会 16,677 篇录用标题后写成的，全部可复现。
+一个给 Claude Code / Codex / ZCode 用的论文标题与摘要优化 skill：把已完成的论文改写成在 AI 检索管道（ChatGPT、Perplexity、Google AI Overviews）和文献索引（arXiv、Semantic Scholar）里容易被召回、被整句引用的版本。把 README 顶部的**一键安装 prompt** 粘贴给你的 agent 即可完成安装，无需命令行经验。内置六阶段流程（可见度基线 → 证据映射 → 标题摘要改写 → 跨词汇覆盖 → 术语闸门 → 交付）和五条硬约束（不编数字、不抬 claim、不挂无关热词、正文只给定位建议、没测到就说没测到）。规则不是拍脑袋：分析了五大会 16,677 篇录用标题后写成的，全部可复现。
 
 ## License
 
