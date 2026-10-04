@@ -2,13 +2,13 @@
 
 > Make your paper **findable and citable** by AI answer engines — ChatGPT, Perplexity, Google AI Overviews — and literature indexes (arXiv, Semantic Scholar).
 
-**Paper Title Optimizer** is an [agent skill](https://github.com/anthropics/skills) (`SKILL.md` + scripts + data) for [Claude Code](https://claude.com/claude-code), Codex, and ZCode that rewrites **academic paper titles and abstracts** for the age of AI search. Think SEO, but for papers — the literature calls it **Generative Engine Optimization (GEO)** (KDD 2024). 论文标题/摘要的 AI 检索优化。
+**Paper Title Optimizer** is an [agent skill](https://github.com/anthropics/skills) (`SKILL.md` + scripts + data) for any agent that loads Agent Skills — **Claude Code, Codex, ZCode, OpenCode, WorkBuddy, DeepSeek Harness, and friends** — that rewrites **academic paper titles and abstracts** for the age of AI search. Think SEO, but for papers — the literature calls it **Generative Engine Optimization (GEO)** (KDD 2024). 论文标题/摘要的 AI 检索优化。
 
-![License](https://img.shields.io/badge/license-MIT-blue) ![Node](https://img.shields.io/badge/node-18%2B-green) ![Platforms](https://img.shields.io/badge/works%20with-Claude%20Code%20%7C%20Codex%20%7C%20ZCode-purple)
+![License](https://img.shields.io/badge/license-MIT-blue) ![Node](https://img.shields.io/badge/node-18%2B-green) ![Platforms](https://img.shields.io/badge/any%20SKILL.md%20agent-blueviolet)
 
 ## One-step install — paste this to your agent
 
-No terminal knowledge needed. Copy the block below, paste it into **Claude Code / Codex / ZCode** (or any agent that loads `SKILL.md` skills), press enter, done.
+No terminal knowledge needed. Copy the block below and paste it into **whichever coding agent you use** — Claude Code, Codex, ZCode, OpenCode, WorkBuddy, DeepSeek Harness, … — any agent that loads `SKILL.md` skills. The prompt tells the agent to install into *its own* skills directory, so it works no matter which platform you send it to.
 
 ```text
 Install the "paper-title-optimizer" agent skill from
@@ -17,9 +17,10 @@ https://github.com/Hoemr/paper-title-optimizer for me:
 1. Fetch it: git clone --depth 1 https://github.com/Hoemr/paper-title-optimizer /tmp/paper-title-optimizer
    (if git is unavailable, download https://github.com/Hoemr/paper-title-optimizer/archive/refs/heads/main.tar.gz and extract it instead).
 2. Copy SKILL.md, references/ and scripts/ from the downloaded folder into the skills
-   directory you actually read: ~/.claude/skills/ (Claude Code), ~/.codex/skills/ (Codex),
-   ~/.zcode/skills/ (ZCode), or ~/.cc-switch/skills/ if my skills are managed by cc-switch.
-   Pick the one that matches your platform; if you can't tell, use ~/.claude/skills/.
+   directory YOU read on this machine. You know your own platform best: ~/.claude/skills/
+   (Claude Code), ~/.codex/skills/ (Codex), ~/.zcode/skills/ (ZCode), ~/.cc-switch/skills/
+   (cc-switch), or the equivalent skills path for other agents (OpenCode, WorkBuddy,
+   DeepSeek Harness, …). If you truly can't tell, use ~/.claude/skills/ and say so.
 3. Verify the scripts run: node <installed path>/scripts/title-stats.mjs --help
    (requires Node 18+; if Node is missing, still finish the install and tell me —
    the skill works without the scripts, they are only for data probes).
@@ -35,10 +36,11 @@ https://github.com/Hoemr/paper-title-optimizer
 
 1. 获取：git clone --depth 1 https://github.com/Hoemr/paper-title-optimizer /tmp/paper-title-optimizer
    （没有 git 就下载并解压 https://github.com/Hoemr/paper-title-optimizer/archive/refs/heads/main.tar.gz ）
-2. 把其中的 SKILL.md、references/、scripts/ 复制到你实际读取的 skills 目录：
-   ~/.claude/skills/（Claude Code）、~/.codex/skills/（Codex）、~/.zcode/skills/（ZCode）；
-   如果我的 skills 由 cc-switch 管理（~/.cc-switch/skills/），装那里。
-   分不清就用 ~/.claude/skills/。
+2. 把其中的 SKILL.md、references/、scripts/ 复制到你自己读取的 skills 目录。
+   你最清楚自己的平台：~/.claude/skills/（Claude Code）、~/.codex/skills/（Codex）、
+   ~/.zcode/skills/（ZCode）、~/.cc-switch/skills/（cc-switch），其他 agent
+   （OpenCode、WorkBuddy、DeepSeek Harness 等）用它各自的 skills 目录。
+   实在判断不了就用 ~/.claude/skills/，并告诉我装到了哪里。
 3. 验证：node <安装路径>/scripts/title-stats.mjs --help 能正常运行
    （需要 Node 18+；没有 Node 也要完成安装并告诉我——脚本只是数据探针，不影响 skill 主体）。
 4. 最后告诉我装到了哪里，并给我一句能触发它的话。
@@ -58,12 +60,13 @@ Reviewers are no longer the only readers of your title and abstract. When a rese
 ## What the skill does
 
 ```mermaid
-flowchart LR
-    A["Stage 0<br/>visibility baseline"] --> B["Stage 1<br/>claim-evidence map<br/>+ name-collision check"]
-    B --> C["Stage 2<br/>title & abstract rewrite"]
-    C --> D["Stage 3<br/>cross-vocabulary coverage"]
-    D --> E["Stage 4<br/>term gate"]
-    E --> F["Stage 5–6<br/>body pointers + delivery"]
+%%{init: {"themeVariables": {"fontSize": "20px"}, "flowchart": {"nodeSpacing": 40, "rankSpacing": 45}}}%%
+flowchart TD
+    A["0 · Visibility baseline"] --> B["1 · Claim-evidence map"]
+    B --> C["2 · Title & abstract rewrite"]
+    C --> D["3 · Cross-vocabulary coverage"]
+    D --> E["4 · Term gate"]
+    E --> F["5–6 · Body pointers & delivery"]
 ```
 
 1. **Stage 0 — Visibility baseline.** Before touching anything, probe whether 8–12 queries can actually retrieve your paper (arXiv backend built in; ChatGPT/Perplexity optional via API keys). No baseline, no way to tell better from worse later.
@@ -109,6 +112,10 @@ mkdir -p ~/.zcode/skills && cp -r paper-title-optimizer ~/.zcode/skills/
 
 # cc-switch
 cp -r paper-title-optimizer ~/.cc-switch/skills/
+
+# Any other agent (OpenCode, WorkBuddy, DeepSeek Harness, …):
+# copy the folder into that agent's skills directory — the only
+# requirement is SKILL.md at the folder root.
 
 # Or drop the folder into your agent workspace's .skills/ directory
 ```
@@ -166,7 +173,7 @@ This skill improves the *probability* of being retrieved and quoted; it does not
 
 ## 中文说明
 
-一个给 Claude Code / Codex / ZCode 用的论文标题与摘要优化 skill：把已完成的论文改写成在 AI 检索管道（ChatGPT、Perplexity、Google AI Overviews）和文献索引（arXiv、Semantic Scholar）里容易被召回、被整句引用的版本。把 README 顶部的**一键安装 prompt** 粘贴给你的 agent 即可完成安装，无需命令行经验。内置六阶段流程（可见度基线 → 证据映射 → 标题摘要改写 → 跨词汇覆盖 → 术语闸门 → 交付）和五条硬约束（不编数字、不抬 claim、不挂无关热词、正文只给定位建议、没测到就说没测到）。规则不是拍脑袋：分析了五大会 16,677 篇录用标题后写成的，全部可复现。
+一个给任何支持 Agent Skills（SKILL.md）的 agent 用的论文标题与摘要优化 skill——Claude Code、Codex、ZCode、OpenCode、WorkBuddy、DeepSeek Harness 等都行：把已完成的论文改写成在 AI 检索管道（ChatGPT、Perplexity、Google AI Overviews）和文献索引（arXiv、Semantic Scholar）里容易被召回、被整句引用的版本。把 README 顶部的**一键安装 prompt** 粘贴给你正在用的那个 agent 即可完成安装，无需命令行经验，agent 会自己装进它读的 skills 目录。内置六阶段流程（可见度基线 → 证据映射 → 标题摘要改写 → 跨词汇覆盖 → 术语闸门 → 交付）和五条硬约束（不编数字、不抬 claim、不挂无关热词、正文只给定位建议、没测到就说没测到）。规则不是拍脑袋：分析了五大会 16,677 篇录用标题后写成的，全部可复现。
 
 ## License
 
